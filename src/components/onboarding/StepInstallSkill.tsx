@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { DUR_FAST, DUR_PANEL, EASE_STANDARD } from "@/lib/motion-tokens";
 import { MutationPatch } from "@/components/MutationPatch";
@@ -12,8 +12,22 @@ interface StepInstallSkillProps {
   onContinue: () => void;
 }
 
-const INSTALL_COMMAND =
-  "mkdir -p .claude/skills/zeroslop-pr-check && curl -fsSL https://zeroslop.app/skill/zeroslop-pr-check.md -o .claude/skills/zeroslop-pr-check/SKILL.md";
+type Shell = "posix" | "powershell";
+
+// El comando se arma con el origin real: en local apunta a localhost, en
+// producción al dominio donde esté desplegada la app. Un dominio hardcodeado
+// hace que el paso 2 falle para todo el mundo salvo en producción.
+const SKILL_PATH = ".claude/skills/zeroslop-pr-check";
+
+function installCommand(origin: string, shell: Shell) {
+  const url = `${origin}/skill/zeroslop-pr-check.md`;
+  if (shell === "powershell") {
+    // PowerShell 5.1 no acepta '&&' como separador, y 'curl' ahí es un alias de
+    // Invoke-WebRequest que no entiende -fsSL: hay que llamar a curl.exe.
+    return `New-Item -ItemType Directory -Force ${SKILL_PATH.replace(/\//g, "\\")} | Out-Null; curl.exe -fsSL ${url} -o ${SKILL_PATH.replace(/\//g, "\\")}\\SKILL.md`;
+  }
+  return `mkdir -p ${SKILL_PATH} && curl -fsSL ${url} -o ${SKILL_PATH}/SKILL.md`;
+}
 
 // El mismo formato que ya renderiza MutationPatch: prosa + ```diff fenced.
 const CHALLENGE_MUTATION = `Un cambio hipotético en tu terminal. ¿Por qué sería peligroso?
@@ -44,6 +58,16 @@ const MIN_ANSWER_LENGTH = 15;
 export function StepInstallSkill({ onContinue }: StepInstallSkillProps) {
   const reduced = useReducedMotion();
   const [copied, setCopied] = useState(false);
+  const [origin, setOrigin] = useState("");
+  const [shell, setShell] = useState<Shell>("posix");
+
+  useEffect(() => {
+    setOrigin(window.location.origin);
+    // Windows arranca en PowerShell, que es donde el comando POSIX falla.
+    if (/win/i.test(navigator.platform)) setShell("powershell");
+  }, []);
+
+  const command = installCommand(origin || "http://localhost:3000", shell);
   const [flashKey, setFlashKey] = useState(0);
   const [liveMessage, setLiveMessage] = useState("");
   const [answer, setAnswer] = useState("");
@@ -52,7 +76,7 @@ export function StepInstallSkill({ onContinue }: StepInstallSkillProps) {
 
   async function handleCopy() {
     try {
-      await navigator.clipboard.writeText(INSTALL_COMMAND);
+      await navigator.clipboard.writeText(command);
     } catch {
       return;
     }
@@ -94,6 +118,22 @@ export function StepInstallSkill({ onContinue }: StepInstallSkillProps) {
       }
     >
       <div>
+        <div className={styles.shellPicker} role="group" aria-label="Shell">
+          <button
+            type="button"
+            data-active={shell === "posix"}
+            onClick={() => setShell("posix")}
+          >
+            bash / zsh
+          </button>
+          <button
+            type="button"
+            data-active={shell === "powershell"}
+            onClick={() => setShell("powershell")}
+          >
+            PowerShell
+          </button>
+        </div>
         <pre
           key={flashKey}
           className={styles.commandBlock}
@@ -102,8 +142,8 @@ export function StepInstallSkill({ onContinue }: StepInstallSkillProps) {
           onKeyDown={handlePreKeyDown}
         >
           <code>
-            <span className={styles.prompt}>$ </span>
-            {INSTALL_COMMAND}
+            <span className={styles.prompt}>{shell === "powershell" ? "PS> " : "$ "}</span>
+            {command}
           </code>
           <button type="button" className={styles.copyBtn} data-copied={copied} onClick={handleCopy}>
             {copied ? <CheckGlyph /> : <ClipGlyph />}

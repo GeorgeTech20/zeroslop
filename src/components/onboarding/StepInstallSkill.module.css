@@ -247,3 +247,35 @@
     margin-top: var(--space-3);
   }
 }
+
+
+/* Selector de shell: el comando POSIX falla en PowerShell, así que la elección
+   tiene que estar a la vista, no escondida en una nota al pie. */
+.shellPicker {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.shellPicker button {
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  letter-spacing: 0.04em;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.shellPicker button[data-active="true"] {
+  border-color: var(--color-interactive);
+  color: var(--color-text);
+  background: var(--color-surface-2);
+}
+
+.shellPicker button:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
