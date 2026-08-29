@@ -23,10 +23,10 @@ export function SiteHeader() {
 
         <div className={styles.authSlot}>
           <Show when="signed-out">
-            <SignInButton mode="modal">
+            <SignInButton mode="modal" fallbackRedirectUrl="/dashboard">
               <button className={styles.ghostBtn}>Iniciar sesión</button>
             </SignInButton>
-            <SignUpButton mode="modal" fallbackRedirectUrl="/onboarding">
+            <SignUpButton mode="modal" fallbackRedirectUrl="/dashboard">
               <button className={styles.primaryBtn}>Registrarse</button>
             </SignUpButton>
           </Show>

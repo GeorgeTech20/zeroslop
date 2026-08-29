@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 export default function SignUpPage() {
   return (
     <AuthShell eyebrow="Empezá a demostrar comprensión">
-      <SignUp path="/sign-up" fallbackRedirectUrl="/onboarding" />
+      <SignUp path="/sign-up" fallbackRedirectUrl="/dashboard" />
     </AuthShell>
   );
 }
