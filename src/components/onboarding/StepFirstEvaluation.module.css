@@ -1,0 +1,160 @@
+.waitWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-5);
+  text-align: center;
+}
+
+.pulseFrame {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-7) var(--space-5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-wash-signal);
+  transition: background var(--dur-panel) var(--ease-standard),
+    border-color var(--dur-panel) var(--ease-standard);
+}
+
+.pulseFrame[data-state="reconnecting"] {
+  background: var(--color-wash-ambar);
+  border-color: var(--color-attention);
+}
+
+.pulseFrame[data-state="arriving"] {
+  animation: engageFlash var(--dur-fast) var(--ease-standard);
+}
+
+@keyframes engageFlash {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.03);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.pulseDot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--brand-voltio);
+  animation: dotBreathe var(--dur-breath) ease-in-out infinite;
+}
+
+.pulseFrame[data-state="reconnecting"] .pulseDot {
+  background: var(--brand-ambar);
+}
+
+@keyframes dotBreathe {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--brand-voltio) 45%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 10px color-mix(in srgb, var(--brand-voltio) 0%, transparent);
+  }
+}
+
+.scan {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--brand-voltio);
+  box-shadow: 0 0 12px 1px var(--brand-voltio);
+  pointer-events: none;
+}
+
+.waitingLabel {
+  font-size: var(--fs-body);
+  color: var(--color-text-muted);
+}
+
+.checklistCaption {
+  align-self: flex-start;
+  font-size: var(--fs-label);
+  font-weight: 600;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.checklist {
+  align-self: stretch;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  text-align: start;
+}
+
+.checklistItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--fs-body);
+}
+
+.checklistItem[data-done="true"] {
+  color: var(--color-text);
+}
+
+.checklistItem[data-done="true"] svg {
+  color: var(--brand-voltio);
+  flex-shrink: 0;
+}
+
+[data-theme="light"] .checklistItem[data-done="true"] svg {
+  color: var(--color-interactive);
+}
+
+.checklistItem[data-done="false"] {
+  color: var(--color-text-muted);
+}
+
+.checklistPulse {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-interactive);
+  animation: dotBreatheSmall var(--dur-breath) ease-in-out infinite;
+}
+
+@keyframes dotBreatheSmall {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-interactive) 40%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 5px color-mix(in srgb, var(--color-interactive) 0%, transparent);
+  }
+}
+
+.arriveWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-5);
+  text-align: center;
+}
+
+.arrivedLabel {
+  font-size: var(--fs-body);
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+.mini {
+  width: 100%;
+  max-width: 260px;
+}

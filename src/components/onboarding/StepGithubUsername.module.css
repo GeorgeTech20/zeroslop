@@ -1,0 +1,130 @@
+.fieldLabel {
+  display: block;
+  font-size: var(--fs-label);
+  font-weight: 600;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-3);
+}
+
+.inputWrap {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  padding-inline-start: var(--space-4);
+  transition: border-color var(--dur-fast) var(--ease-standard),
+    background var(--dur-fast) var(--ease-standard);
+}
+
+.inputWrap:focus-within {
+  border-color: var(--color-interactive);
+  background: var(--color-wash-iris);
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
+}
+
+.inputWrap[data-error="true"] {
+  border-color: var(--color-attention);
+}
+
+.prefix {
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono);
+  color: var(--color-text-muted);
+  user-select: none;
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: var(--fs-body);
+  color: var(--color-text);
+  padding: var(--space-4);
+  caret-color: var(--brand-voltio);
+}
+
+.input:focus {
+  outline: none;
+}
+
+.input::placeholder {
+  color: var(--color-text-muted);
+  opacity: 0.6;
+}
+
+.error {
+  font-size: var(--fs-small);
+  color: var(--color-attention);
+  margin-top: var(--space-2);
+}
+
+.chipRow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.chipCaption {
+  font-size: var(--fs-small);
+  color: var(--color-text-muted);
+}
+
+.chip {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono);
+  overflow-x: auto;
+  transition: background var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard);
+}
+
+.chip[data-state="active"] {
+  border-style: solid;
+  border-color: var(--color-border-strong);
+  background: var(--color-wash-signal);
+}
+
+.chipMuted {
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.chipPlaceholder {
+  color: var(--color-text-muted);
+  opacity: 0.5;
+  white-space: nowrap;
+}
+
+.chipUser {
+  color: var(--color-interactive);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+[data-theme="dark"] .chipUser {
+  color: var(--brand-voltio);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .chipUser {
+    color: var(--brand-voltio);
+  }
+}
+
+.chipArrow {
+  margin-inline-start: auto;
+  color: var(--color-text-muted);
+  opacity: 0.5;
+  flex-shrink: 0;
+}

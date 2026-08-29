@@ -1,0 +1,216 @@
+/* ============================================================
+   ZeroSlop — tokens.css
+   Sistema visual de /developers/[githubUsername]
+   Panel de observabilidad. NO crema+terracota. NO semáforo.
+   Contraste verificado (WCAG 2.1) — ratios anotados por token.
+   ============================================================ */
+
+/* ---------- 1. Paleta de marca (raw, mode-independent) ---------- */
+:root {
+  --brand-grafito: #15171C; /* tinta / base oscura            */
+  --brand-cal:     #F0F2F1; /* papel / base clara (frío)      */
+  --brand-voltio:  #C7F82E; /* señal primaria / héroe score   */
+  --brand-iris:    #7A6CF2; /* interacción / foco / comprensión */
+  --brand-ambar:   #F2B237; /* atención / valor bajo (indicador) */
+  --brand-bruma:   #8A93A0; /* texto secundario / mudo        */
+
+  /* Pozo del readout: OSCURO EN AMBOS MODOS (la lima siempre sobre grafito) */
+  --readout-well: #101216;
+
+  /* ---------- Washes de revelación (Fase 4 — onboarding) ----------
+     Tintes muy tenues de una señal de marca sobre la superficie actual.
+     Se definen con color-mix contra --color-surface-1, así se resuelven
+     por-tema sin duplicar (en oscuro tiñen sobre panel oscuro; en claro
+     sobre blanco). Uso: la tarjeta "evidencia esperada" del test de 30s,
+     el chip de URL en vivo del paso 1, el marco del estado "esperando". */
+  --color-wash-signal: color-mix(in srgb, var(--brand-voltio) 14%, var(--color-surface-1));
+  --color-wash-iris:   color-mix(in srgb, var(--brand-iris)   12%, var(--color-surface-1));
+  --color-wash-ambar:  color-mix(in srgb, var(--brand-ambar)  14%, var(--color-surface-1));
+
+  /* ---------- Tipografía ---------- */
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-body:    "Geist", "Inter", system-ui, sans-serif;
+  --font-mono:    "JetBrains Mono", ui-monospace, "SFMono-Regular", monospace;
+
+  --fs-hero:    4.5rem;    /* 72px */
+  --fs-display: 2rem;      /* 32px */
+  --fs-title:   1.25rem;   /* 20px */
+  --fs-body:    0.9375rem; /* 15px */
+  --fs-small:   0.8125rem; /* 13px */
+  --fs-mono:    0.8125rem; /* 13px */
+  --fs-label:   0.6875rem; /* 11px */
+
+  --lh-hero: 1.0;
+  --lh-tight: 1.15;
+  --lh-body: 1.55;
+  --lh-mono: 1.6;
+
+  --tracking-hero:   -0.03em;
+  --tracking-display:-0.02em;
+  --tracking-title:  -0.01em;
+  --tracking-label:   0.08em;
+
+  /* ---------- Espaciado (base 4px) ---------- */
+  --space-1: 2px;
+  --space-2: 4px;
+  --space-3: 8px;
+  --space-4: 12px;
+  --space-5: 16px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 48px;
+  --space-9: 64px;
+
+  /* ---------- Radios ---------- */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-well: 20px;
+
+  /* ---------- Movimiento ---------- */
+  --ease-standard: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-readout:  cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast:    120ms;
+  --dur-panel:   220ms;
+  --dur-select:  260ms;
+  --dur-readout: 700ms;
+
+  /* Fase 4 — onboarding
+     --dur-arrive: el 2º momento hero (estado "esperando" → "llegó" en el
+       paso 3); un pelo más largo que --dur-panel para que se sienta un
+       aterrizaje, no un cambio de pestaña.
+     --dur-breath: ciclo ambiental del estado "esperando" (respiración del
+       borde/nodo vivo). Loop; se apaga por completo con reduced-motion. */
+  --dur-arrive:  560ms;
+  --dur-breath: 1600ms;
+}
+
+/* ============================================================
+   2. TEMA CLARO (default)  — base Cal #F0F2F1
+   ============================================================ */
+:root,
+[data-theme="light"] {
+  color-scheme: light;
+
+  /* Superficies (chasis) */
+  --color-bg:            #F0F2F1; /* Cal                          */
+  --color-surface-1:     #FFFFFF; /* tarjetas / panel derecho     */
+  --color-surface-2:     #E9ECEB; /* hover de fila, insets suaves */
+  --color-border:        #DADEDD;
+  --color-border-strong: #C4C9C8;
+
+  /* Texto */
+  --color-text:        #15171C; /* Grafito — 15.9:1 sobre bg  ✓ AAA */
+  --color-text-muted:  #59606B; /* mudo     — 5.64:1 sobre bg  ✓ AA  */
+  --color-text-onwell: #F0F2F1; /* texto sobre el pozo oscuro       */
+
+  /* Marca / semántica */
+  --color-signal:      #C7F82E; /* Voltio — SOLO como fill (invisible como texto sobre Cal) */
+  --color-interactive: #5B4BD6; /* Iris oscurecido — 5.46:1 sobre bg ✓ AA (links/tabs) */
+  --color-ring:        #5B4BD6; /* foco — 3.55:1 (Iris base) mín. UI; #5B4BD6 para texto  */
+  --color-attention:   #B26B00; /* Ámbar oscurecido para texto/borde en claro; fill usa --brand-ambar */
+
+  /* Métricas */
+  --metric-comprension: #5B4BD6; /* Iris  (comprensionDecisiones) */
+  --metric-riesgos:     #C7F82E; /* Voltio (deteccionRiesgos)     */
+
+  /* Readout (idéntico en ambos modos) */
+  --color-readout-bg:     var(--readout-well); /* #101216 */
+  --color-readout-signal: #C7F82E;             /* Voltio 15.1:1 sobre pozo ✓ AAA */
+  --color-readout-track:  #2A2F38;             /* pista del arco sin llenar      */
+}
+
+/* ============================================================
+   3. TEMA OSCURO — base Grafito #15171C
+   ============================================================ */
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --color-bg:            #15171C; /* Grafito                       */
+  --color-surface-1:     #1B1E24; /* panel derecho                 */
+  --color-surface-2:     #22262E; /* hover de fila                 */
+  --color-border:        #2A2F38;
+  --color-border-strong: #3A414C;
+
+  --color-text:        #F0F2F1; /* Cal    — 15.9:1 sobre bg ✓ AAA */
+  --color-text-muted:  #8A93A0; /* Bruma  — 5.77:1 sobre bg ✓ AA  */
+  --color-text-onwell: #F0F2F1;
+
+  --color-signal:      #C7F82E; /* Voltio — 14.4:1 sobre bg ✓ AAA (usable como texto en dark) */
+  --color-interactive: #7A6CF2; /* Iris   — accionable            */
+  --color-ring:        #7A6CF2; /* foco   — 4.5:1 sobre bg ✓ (>3:1 UI) */
+  --color-attention:   #F2B237; /* Ámbar  — 9.56:1 sobre bg ✓      */
+
+  --metric-comprension: #7A6CF2; /* Iris   */
+  --metric-riesgos:     #C7F82E; /* Voltio */
+
+  --color-readout-bg:     var(--readout-well); /* #101216 */
+  --color-readout-signal: #C7F82E;             /* 15.1:1 ✓ AAA */
+  --color-readout-track:  #2A2F38;
+}
+
+/* ============================================================
+   4. Fallback por preferencia del sistema (sin data-theme)
+   ============================================================ */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    color-scheme: dark;
+    --color-bg:            #15171C;
+    --color-surface-1:     #1B1E24;
+    --color-surface-2:     #22262E;
+    --color-border:        #2A2F38;
+    --color-border-strong: #3A414C;
+    --color-text:          #F0F2F1;
+    --color-text-muted:    #8A93A0;
+    --color-text-onwell:   #F0F2F1;
+    --color-signal:        #C7F82E;
+    --color-interactive:   #7A6CF2;
+    --color-ring:          #7A6CF2;
+    --color-attention:     #F2B237;
+    --metric-comprension:  #7A6CF2;
+    --metric-riesgos:      #C7F82E;
+    --color-readout-bg:     var(--readout-well);
+    --color-readout-signal: #C7F82E;
+    --color-readout-track:  #2A2F38;
+  }
+}
+
+/* ============================================================
+   5. Foco de teclado — SIEMPRE visible, ambos modos
+   ============================================================ */
+:where(a, button, [role="row"], [role="tab"], [tabindex]):focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* ============================================================
+   6. prefers-reduced-motion — corta TODO el movimiento
+   frontend-dashboard: colapsar transiciones Motion a fade 120ms.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: var(--dur-fast) !important; /* solo fade de opacidad */
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ============================================================
+   RESUMEN DE CONTRASTE (relative luminance, WCAG 2.1)
+   ------------------------------------------------------------
+   CLARO  (bg #F0F2F1):
+     texto #15171C ............ 15.9:1  AAA
+     mudo  #59606B ............  5.64:1 AA
+     interactivo #5B4BD6 ......  5.46:1 AA
+     ring  #5B4BD6 ............  ≥3:1   UI  (Iris base 3.55:1)
+   OSCURO (bg #15171C):
+     texto #F0F2F1 ............ 15.9:1  AAA
+     mudo  #8A93A0 ............  5.77:1 AA
+     signal #C7F82E ........... 14.4:1  AAA
+     ring  #7A6CF2 ............  4.5:1  UI
+     ámbar #F2B237 ............  9.56:1 AA
+   READOUT (pozo #101216, ambos modos):
+     signal #C7F82E ........... 15.1:1  AAA
+   ============================================================ */

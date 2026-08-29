@@ -1,0 +1,143 @@
+/* Pozo del readout: SIEMPRE oscuro (#101216), en ambos modos de la app.
+   Por eso todos los colores de esta hoja usan tokens de marca crudos
+   (--brand-*, --color-readout-*) en vez de los tokens que cambian con
+   [data-theme], que sólo describen las superficies del chasis. */
+
+.well {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-readout-bg);
+  border-radius: var(--radius-well);
+  padding: var(--space-7) var(--space-6) var(--space-6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-5);
+}
+
+.arcWrap {
+  position: relative;
+  width: min(240px, 60vw);
+  aspect-ratio: 1 / 1;
+}
+
+.arcSvg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(0deg);
+}
+
+.arcTrack {
+  fill: none;
+  stroke: var(--color-readout-track);
+  stroke-width: 10;
+  stroke-linecap: round;
+}
+
+.arcFill {
+  fill: none;
+  stroke: var(--color-readout-signal);
+  stroke-width: 10;
+  stroke-linecap: round;
+}
+
+.digitWrap {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.digit {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(2.75rem, 9vw, var(--fs-hero));
+  line-height: var(--lh-hero);
+  letter-spacing: var(--tracking-hero);
+  color: var(--color-readout-signal);
+}
+
+.digitSuffix {
+  font-family: var(--font-mono);
+  font-size: var(--fs-small);
+  color: var(--color-text-onwell);
+  opacity: 0.5;
+}
+
+.readoutLabel {
+  font-size: var(--fs-label);
+  font-weight: 600;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-text-onwell);
+  opacity: 0.6;
+  margin-top: calc(-1 * var(--space-3));
+}
+
+.scanline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--color-readout-signal);
+  box-shadow: 0 0 12px 1px var(--color-readout-signal);
+  pointer-events: none;
+}
+
+.meters {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-top: var(--space-2);
+}
+
+.meterRow {
+  display: grid;
+  grid-template-columns: 5.5rem 1fr 3rem;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.meterLabel {
+  font-size: var(--fs-label);
+  font-weight: 600;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-text-onwell);
+  opacity: 0.6;
+}
+
+.meterTrack {
+  position: relative;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--color-readout-track);
+  overflow: hidden;
+}
+
+.meterFill {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  border-radius: 999px;
+}
+
+.meterFill[data-tone="iris"] {
+  background: var(--brand-iris);
+}
+
+.meterFill[data-tone="voltio"] {
+  background: var(--color-readout-signal);
+}
+
+.meterValue {
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono);
+  color: var(--color-text-onwell);
+  opacity: 0.8;
+  text-align: right;
+}

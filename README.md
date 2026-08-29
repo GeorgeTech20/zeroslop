@@ -1,36 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ZeroSlop
 
-## Getting Started
+**Comprensión demostrada, antes de que exista la PR.**
 
-First, run the development server:
+ZeroSlop evalúa si quien abre un pull request entiende su propio cambio. No revisa
+el código: interroga a la persona. Una pregunta conceptual sobre una decisión real
+del diff, y una **mutación hipotética** —un patch que no está en el diff y que
+rompería algo importante— para ver si detecta por qué es peligrosa.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Las dos se responden en la terminal, antes de que la PR exista. Se puntúan de 0 a
+10 y el resultado queda en un panel de equipo con recursos de aprendizaje elegidos
+según lo que falló.
+
+No detecta "código escrito por IA". Usar IA está bien. Lo que se mide es si quien
+firma el cambio lo entiende.
+
+> **The Next Craft** · Track: Learning by Shipping
+
+## Cómo funciona
+
+```
+El developer pide crear la PR
+   ↓
+La Skill lee el diff y genera —sin mostrarlas— una pregunta conceptual,
+una mutación hipotética y la rúbrica de ambas
+   ↓
+Le pregunta. La mutación se muestra como patch: nunca toca un archivo real
+   ↓
+Puntúa: comprensión de decisiones · detección de riesgos · calidad de explicación
+   ↓
+Recién ahora crea la PR. Un score bajo nunca bloquea
+   ↓
+Guarda en Convex y entrega la URL del panel  →  n8n avisa al senior por Telegram
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+La evaluación corre en la terminal como **Skill** de Claude Code, y escribe en la
+base a través de un **servidor MCP** con sus tools. Por eso ve el diff real y no
+una copia.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Stack
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Tecnología | Para qué |
+|---|---|
+| **Convex** | Base de datos y functions reactivas: el panel se actualiza solo cuando llega una evaluación |
+| **Clerk** | Autenticación, con identidad verificada dentro de Convex vía JWT |
+| **n8n** | Notificación al senior por Telegram |
+| **Claude Code · Skill + MCP** | La evaluación en la terminal del developer y sus tools contra la base |
+| **Next.js 16 · TypeScript** | App Router, server components y suscripciones en vivo |
+| **Base UI · Motion** | UI accesible y la animación del panel |
 
-## Learn More
+## Correr el proyecto
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+pnpm install
+npx convex dev            # login, deployment y codegen
+npx convex run seed:run   # datos de la demo
+pnpm dev                  # http://localhost:3000
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Variables: copiar `.env.example` a `.env.local` y completar las claves de Clerk.
+`npx convex dev` escribe las de Convex solo. Los dos pasos extra para que Convex
+acepte la identidad de Clerk están en [`docs/CONVEX-SETUP.md`](docs/CONVEX-SETUP.md) §7.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Estructura
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+convex/            schema, queries, mutations y seed
+src/app/           landing, panel, onboarding, settings, auth
+src/components/    UI del panel y del onboarding
+src/lib/           capa de datos, tipos, tokens de movimiento
+docs/              design system, setup de Convex, esquema unificado
+.claude/skills/    la Skill que corre en la terminal
+```

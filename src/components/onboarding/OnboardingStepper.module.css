@@ -1,0 +1,75 @@
+.list {
+  display: flex;
+  align-items: center;
+  list-style: none;
+  width: 100%;
+  max-width: 280px;
+  margin: 0 auto;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.item:last-child {
+  flex: 0 0 auto;
+}
+
+.dot {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  cursor: default;
+}
+
+.dot[data-state="pending"] {
+  border: 1px solid var(--color-border);
+}
+
+.dot[data-state="current"] {
+  border: 2px solid var(--color-interactive);
+  animation: breathe var(--dur-breath) ease-in-out infinite;
+}
+
+.dot[data-state="completed"] {
+  border: 1px solid transparent;
+  background: var(--brand-voltio);
+  color: var(--brand-grafito);
+}
+
+button.dot[data-state="completed"] {
+  cursor: pointer;
+}
+
+button.dot[data-state="completed"]:hover {
+  filter: brightness(1.06);
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-interactive) 32%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--color-interactive) 0%, transparent);
+  }
+}
+
+.connector {
+  flex: 1;
+  height: 1px;
+  min-width: 24px;
+  background: var(--color-border);
+  transition: background var(--dur-select) var(--ease-standard);
+}
+
+.connector[data-filled="true"] {
+  background: var(--brand-voltio);
+}
