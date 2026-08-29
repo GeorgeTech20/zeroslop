@@ -5,9 +5,12 @@
 // construida (cuenta Clerk, perfiles seeded de la demo) y lo que faltaba para
 // que n8n y la rotación de tokens funcionen de verdad.
 //
-// NO reemplaza todavía a convex/schema.ts: es la propuesta a acordar. Cuando
-// se apruebe, se migra y se reescriben las queries (los componentes del
-// frontend no se tocan — consumen src/lib/data-source.ts).
+// ADOPTADA. convex/schema.ts ya es esta propuesta (con los índices/campos
+// verificados contra convex-dropin/*.ts de Bruno) — este archivo queda como
+// referencia histórica de la propuesta original, no se vuelve a copiar a
+// mano. Las queries de convex/developers.ts y convex/resources.ts ya se
+// reescribieron contra este schema; los componentes del frontend no se
+// tocaron (consumen src/lib/data-source.ts, que no cambió de forma).
 
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";

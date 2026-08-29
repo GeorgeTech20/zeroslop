@@ -1,4 +1,3 @@
-import { ConvexDashboardScreen } from "@/components/ConvexDashboardScreen";
 import { DashboardScreen } from "@/components/DashboardScreen";
 import type { Metadata } from "next";
 import { loadDashboardData } from "@/lib/data-source";
@@ -16,15 +15,6 @@ export default async function DeveloperPage(
   const { githubUsername } = await props.params;
   const data = await loadDashboardData(githubUsername);
 
-  if (data.mode === "convex") {
-    return (
-      <ConvexDashboardScreen
-        rowsPreloaded={data.rowsPreloaded}
-        profilePreloaded={data.profilePreloaded}
-        selectedUsername={githubUsername}
-      />
-    );
-  }
 
   return (
     <DashboardScreen

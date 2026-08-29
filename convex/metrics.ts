@@ -1,45 +1,32 @@
 // Helpers de agregación puros, compartidos por developers.ts y resources.ts.
-// Misma lógica que mock-data.ts (computeMetrics/inferSkillTags) — ver
-// ZeroSlop Backend - Mock Data Fase 1 en la memoria de la oficina: overallScore
-// SIEMPRE promedia comprensionDecisiones y deteccionRiesgos, nunca calidadExplicacion.
+// Misma semántica que antes de la migración (ver memoria de la oficina,
+// "ZeroSlop Backend - Mock Data Fase 1"): overallScore SIEMPRE promedia
+// comprensionDecisiones y deteccionRiesgos, nunca calidadExplicacion. Lo que
+// cambió es la fuente: ahora lee `assessments.scores.*` (schema unificado)
+// en vez de `evaluations.conceptualScore/mutationScore`.
 
 import type { Doc } from "./_generated/dataModel";
-import type { SkillTag } from "./types";
 
 export function average(values: number[]): number {
   if (values.length === 0) return 0;
   return values.reduce((sum, value) => sum + value, 0) / values.length;
 }
 
-export function computeMetrics(evaluations: Doc<"evaluations">[]) {
+export function computeMetrics(assessments: Doc<"assessments">[]) {
   const comprensionDecisiones = average(
-    evaluations.map((e) => e.conceptualScore)
+    assessments.map((a) => a.scores.decisionUnderstanding)
   );
-  const deteccionRiesgos = average(evaluations.map((e) => e.mutationScore));
+  const deteccionRiesgos = average(assessments.map((a) => a.scores.riskDetection));
   const calidadExplicacion = average(
-    evaluations.map((e) => e.explanationQuality)
+    assessments.map((a) => a.scores.explanationQuality)
   );
   const overallScore = average([comprensionDecisiones, deteccionRiesgos]);
   return { comprensionDecisiones, deteccionRiesgos, calidadExplicacion, overallScore };
 }
 
-export function latestEvaluation(
-  evaluations: Doc<"evaluations">[]
-): Doc<"evaluations"> | null {
-  return [...evaluations].sort((a, b) => b.createdAt - a.createdAt)[0] ?? null;
-}
-
-// Umbral por debajo del cual un score "arrastra" su skillTag hacia recomendaciones.
-const LOW_SCORE_THRESHOLD = 6;
-
-// Mapeo heurístico pregunta→skillTag, hasta tener clasificación real por LLM.
-export function inferSkillTags(evaluation: Doc<"evaluations">): SkillTag[] {
-  const tags: SkillTag[] = [];
-  if (evaluation.mutationScore < LOW_SCORE_THRESHOLD) {
-    tags.push("security", "debugging");
-  }
-  if (evaluation.conceptualScore < LOW_SCORE_THRESHOLD) {
-    tags.push("architecture", "testing");
-  }
-  return tags;
+// Sin createdAt propio (schema unificado): se ordena por _creationTime.
+export function latestAssessment(
+  assessments: Doc<"assessments">[]
+): Doc<"assessments"> | null {
+  return [...assessments].sort((a, b) => b._creationTime - a._creationTime)[0] ?? null;
 }

@@ -1,52 +1,93 @@
-// resources.recommend — query INTERNA. No la llama el frontend ni el MCP
-// oficial (que solo ve functions públicas); la llama developers.getProfile
-// vía ctx.runQuery(internal.resources.recommend, ...). No genera recursos ni
-// URLs — solo elige entre lo que ya está en la tabla `resources` (seed.ts).
+// resources.recommend — query INTERNA. La llama developers.getProfile vía
+// ctx.runQuery(internal.resources.recommend, ...); no la llama el frontend
+// ni el MCP oficial. Cruza los `learningAreas` reales de los assessments del
+// developer (los eligió el evaluador al puntuar) contra
+// `learningResources.areas` — se elimina la heurística vieja de inferir
+// tags por score bajo (vivía en metrics.ts como inferSkillTags y ya no
+// aplica: el schema unificado no infiere nada, lo declara la evaluación).
+//
+// El frontend (src/lib/types.ts) no se toca y sigue esperando la forma
+// vieja de Resource: { _id, title, url, skillTag } con UN solo tag del
+// union de 5 (ResourceList.tsx y resource-explanations.ts hacen
+// `switch (resource.skillTag)`). `learningResources.areas` es un ARRAY y
+// admite "authentication", que no existe en ese union viejo — se colapsa a
+// "security" (mismo bucket narrativo: punto ciego de seguridad). Esto es un
+// mapeo nuestro para no romper componentes ya construidos, no algo que pida
+// el contrato de Bruno. Si frontend-dashboard quiere consumir
+// `areas`/`description`/`provider` tal cual en el futuro, hay que
+// coordinarlo — de momento esos dos campos no viajan en la respuesta.
 
 import { v } from "convex/values";
 import { internalQuery } from "./_generated/server";
 import type { Doc } from "./_generated/dataModel";
-import type { SkillTag } from "./types";
 
-const skillTagValidator = v.union(
-  v.literal("testing"),
+const learningAreaValidator = v.union(
   v.literal("architecture"),
+  v.literal("testing"),
   v.literal("security"),
-  v.literal("typescript"),
-  v.literal("debugging")
+  v.literal("authentication"),
+  v.literal("debugging"),
+  v.literal("typescript")
 );
 
+type LearningArea =
+  | "architecture"
+  | "testing"
+  | "security"
+  | "authentication"
+  | "debugging"
+  | "typescript";
+
+type LegacySkillTag =
+  | "testing"
+  | "architecture"
+  | "security"
+  | "typescript"
+  | "debugging";
+
+function legacySkillTagFor(areas: LearningArea[]): LegacySkillTag {
+  for (const area of areas) {
+    if (area === "authentication") continue;
+    return area;
+  }
+  return "security"; // única area sin equivalente directo en el union viejo
+}
+
 export const recommend = internalQuery({
-  args: { skillTags: v.array(skillTagValidator) },
-  handler: async (ctx, { skillTags }): Promise<Doc<"resources">[]> => {
-    if (skillTags.length === 0) return [];
+  args: { learningAreas: v.array(learningAreaValidator) },
+  handler: async (ctx, { learningAreas }) => {
+    if (learningAreas.length === 0) return [];
 
-    const counts = new Map<SkillTag, number>();
-    for (const tag of skillTags) {
-      counts.set(tag, (counts.get(tag) ?? 0) + 1);
+    const counts = new Map<LearningArea, number>();
+    for (const area of learningAreas) {
+      counts.set(area, (counts.get(area) ?? 0) + 1);
     }
-    const orderedTags = [...counts.entries()]
+    const orderedAreas = [...counts.entries()]
       .sort((a, b) => b[1] - a[1])
-      .map(([tag]) => tag);
+      .map(([area]) => area);
 
-    const picked: Doc<"resources">[] = [];
+    // Sin índice a propósito (ver schema.ts): catálogo chico, se filtra en JS.
+    const catalog = await ctx.db.query("learningResources").collect();
+
+    const picked: Doc<"learningResources">[] = [];
     const pickedIds = new Set<string>();
 
-    for (const tag of orderedTags) {
-      const matches = await ctx.db
-        .query("resources")
-        .filter((q) => q.eq(q.field("skillTag"), tag))
-        .collect();
-
-      for (const resource of matches) {
+    for (const area of orderedAreas) {
+      for (const resource of catalog) {
         if (picked.length === 3) break;
         if (pickedIds.has(resource._id)) continue;
+        if (!resource.areas.includes(area)) continue;
         picked.push(resource);
         pickedIds.add(resource._id);
       }
       if (picked.length === 3) break;
     }
 
-    return picked;
+    return picked.map((resource) => ({
+      _id: resource._id,
+      title: resource.title,
+      url: resource.url,
+      skillTag: legacySkillTagFor(resource.areas as LearningArea[]),
+    }));
   },
 });
